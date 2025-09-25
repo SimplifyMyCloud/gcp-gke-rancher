@@ -13,7 +13,10 @@
       "Bash(gcloud container node-pools describe:*)",
       "Bash(gcloud auth configure-docker:*)",
       "Bash(helm upgrade:*)",
-      "Bash(openssl req:*)"
+      "Bash(openssl req:*)",
+      "Bash(gcloud compute ssh:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)"
     ],
     "deny": [],
     "ask": []

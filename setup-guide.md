@@ -91,16 +91,15 @@ kubectl apply -f deployment.yaml
 - Shows live cluster statistics
 - Available at: `http://<LOAD_BALANCER_IP>`
 
-### Rancher Console
-1. Get ingress IP:
+### Rancher Console (Secure Access)
+1. Create port forward tunnel:
    ```bash
-   kubectl get svc -n ingress-nginx ingress-nginx-controller
+   kubectl port-forward -n cattle-system svc/rancher 8443:443
    ```
-2. Add to /etc/hosts:
-   ```
-   <INGRESS_IP> rancher.local
-   ```
-3. Access: https://rancher.local
+2. Access: https://localhost:8443
+3. Login: admin/admin
+
+Note: Rancher is intentionally not exposed to the internet for security.
 
 ### Cluster Management via Bastion
 ```bash

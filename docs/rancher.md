@@ -63,23 +63,21 @@ resources:
 
 ## Access Methods
 
-### Web Interface
+### Secure Access via Port Forward (Required)
 
-1. **Get the NGINX Ingress IP**:
+Rancher is not publicly accessible and requires a secure tunnel for access:
+
+1. **Create Port Forward**:
    ```bash
-   kubectl get svc -n ingress-nginx ingress-nginx-controller
+   kubectl port-forward -n cattle-system svc/rancher 8443:443
    ```
 
-2. **Configure local DNS**:
-   Add to `/etc/hosts`:
-   ```
-   <EXTERNAL_IP> rancher.local
-   ```
-
-3. **Access Rancher**:
-   - URL: `https://rancher.local`
+2. **Access Rancher**:
+   - URL: `https://localhost:8443`
    - Initial Username: `admin`
    - Initial Password: `admin`
+
+See [IAP Access Documentation](./iap-access.md) for detailed instructions and alternative methods.
 
 ### CLI Access via kubectl
 
