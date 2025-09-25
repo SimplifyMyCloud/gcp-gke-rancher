@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats-frontend-test
+  namespace: gke-stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats-frontend-test
+  template:
+    metadata:
+      labels:
+        app: stats-frontend-test
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: html-volume
+        configMap:
+          name: stats-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-test-service
+  namespace: gke-stats
+spec:
+  selector:
+    app: stats-frontend-test
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer

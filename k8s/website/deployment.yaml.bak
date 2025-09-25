@@ -55,7 +55,7 @@ spec:
       serviceAccountName: stats-backend-sa
       containers:
       - name: backend
-        image: us-west1-docker.pkg.dev/simplifymycloud-dev/gke-stats/backend@sha256:f8ae8f18213e43cacf4e0e321922351eb85084faebd82077b0d933c82a9b3ff7
+        image: us-west1-docker.pkg.dev/simplifymycloud-dev/gke-stats/backend:latest
         ports:
         - containerPort: 3000
         env:
@@ -113,7 +113,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us-west1-docker.pkg.dev/simplifymycloud-dev/gke-stats/frontend@sha256:f2e249cc8bc4609339f788706ac2e055b7668b05062bf88dd2be08363f6d6d35
+        image: gcr.io/simplifymycloud-dev/gke-stats-frontend:latest
         ports:
         - containerPort: 80
         resources:

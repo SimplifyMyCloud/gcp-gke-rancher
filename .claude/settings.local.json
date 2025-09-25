@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(docker:*)",
+      "Bash(open:*)",
+      "Bash(kubectl:*)",
+      "Bash(gcloud container clusters list:*)",
+      "Bash(gcloud container clusters update:*)",
+      "Bash(gcloud projects add-iam-policy-binding:*)",
+      "Bash(gcloud builds submit:*)",
+      "Bash(gcloud artifacts docker images list:*)",
+      "Bash(gcloud container node-pools describe:*)",
+      "Bash(gcloud auth configure-docker:*)",
+      "Bash(helm upgrade:*)",
+      "Bash(openssl req:*)"
     ],
     "deny": [],
     "ask": []
