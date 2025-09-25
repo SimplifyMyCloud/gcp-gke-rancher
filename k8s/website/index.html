@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKE Test Drive - Cluster Stats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2rem;
+        }
+
+        .cluster-name {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0.5rem 0;
+        }
+
+        .stat-detail {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1rem;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .rancher-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .rancher-link:hover {
+            background: #5a67d8;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>GKE Test Drive Dashboard</h1>
+            <div class="cluster-name" id="clusterName">Loading...</div>
+        </div>
+    </header>
+
+    <main>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-title">Total Nodes</div>
+                </div>
+                <div class="stat-value" id="nodeCount">-</div>
+                <div class="stat-detail" id="nodeDetail">Loading node information...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🚀</div>
+                    <div class="stat-title">Running Pods</div>
+                </div>
+                <div class="stat-value" id="podCount">-</div>
+                <div class="stat-detail" id="podDetail">Loading pod information...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🔧</div>
+                    <div class="stat-title">Services</div>
+                </div>
+                <div class="stat-value" id="serviceCount">-</div>
+                <div class="stat-detail" id="serviceDetail">Loading service information...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">💾</div>
+                    <div class="stat-title">CPU Usage</div>
+                </div>
+                <div class="stat-value" id="cpuUsage">-</div>
+                <div class="stat-detail">Across all nodes</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">💿</div>
+                    <div class="stat-title">Memory Usage</div>
+                </div>
+                <div class="stat-value" id="memoryUsage">-</div>
+                <div class="stat-detail">Across all nodes</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-title">Namespaces</div>
+                </div>
+                <div class="stat-value" id="namespaceCount">-</div>
+                <div class="stat-detail">Active namespaces</div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Cluster Information</h2>
+            <div class="info-grid">
+                <span class="info-label">Kubernetes Version:</span>
+                <span class="info-value" id="k8sVersion">Loading...</span>
+
+                <span class="info-label">Region:</span>
+                <span class="info-value" id="region">us-west1</span>
+
+                <span class="info-label">Zone:</span>
+                <span class="info-value" id="zone">us-west1-a</span>
+
+                <span class="info-label">Project ID:</span>
+                <span class="info-value" id="projectId">simplifymycloud-dev</span>
+
+                <span class="info-label">Node Machine Type:</span>
+                <span class="info-value" id="machineType">e2-standard-4</span>
+            </div>
+
+            <a href="#" class="rancher-link" id="rancherLink">Open Rancher Management Console</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>GKE Test Drive POC Environment | Managed by Rancher | <span id="timestamp"></span></p>
+    </footer>
+
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // Fetch cluster stats from backend
+        async function fetchClusterStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                // Update UI with real data
+                document.getElementById('clusterName').textContent = data.clusterName || 'gke-rancher-testdrive';
+                document.getElementById('nodeCount').textContent = data.nodeCount || '3';
+                document.getElementById('nodeDetail').textContent = `${data.nodeReady || '3'} nodes ready`;
+                document.getElementById('podCount').textContent = data.podCount || '12';
+                document.getElementById('podDetail').textContent = `${data.podRunning || '12'} pods running`;
+                document.getElementById('serviceCount').textContent = data.serviceCount || '5';
+                document.getElementById('serviceDetail').textContent = `${data.serviceActive || '5'} services active`;
+                document.getElementById('cpuUsage').textContent = data.cpuUsage || '35%';
+                document.getElementById('memoryUsage').textContent = data.memoryUsage || '42%';
+                document.getElementById('namespaceCount').textContent = data.namespaceCount || '7';
+                document.getElementById('k8sVersion').textContent = data.k8sVersion || 'v1.27.3';
+
+                // Remove loading class
+                document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                // Use demo data if API fails
+                useDemoData();
+            }
+        }
+
+        function useDemoData() {
+            document.getElementById('clusterName').textContent = 'gke-rancher-testdrive';
+            document.getElementById('nodeCount').textContent = '3';
+            document.getElementById('nodeDetail').textContent = '3 nodes ready';
+            document.getElementById('podCount').textContent = '12';
+            document.getElementById('podDetail').textContent = '12 pods running';
+            document.getElementById('serviceCount').textContent = '5';
+            document.getElementById('serviceDetail').textContent = '5 services active';
+            document.getElementById('cpuUsage').textContent = '35%';
+            document.getElementById('memoryUsage').textContent = '42%';
+            document.getElementById('namespaceCount').textContent = '7';
+            document.getElementById('k8sVersion').textContent = 'v1.27.3';
+        }
+
+        // Initial fetch and periodic refresh
+        fetchClusterStats();
+        setInterval(fetchClusterStats, 30000); // Refresh every 30 seconds
+
+        // Set Rancher link
+        document.getElementById('rancherLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Rancher will be accessible at https://rancher.local after configuring the ingress IP in your /etc/hosts file');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "gke-stats-backend",
+  "version": "1.0.0",
+  "description": "Backend API for GKE cluster stats",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "^0.20.0"
+  }
+}
