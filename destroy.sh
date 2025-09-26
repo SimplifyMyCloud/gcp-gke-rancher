@@ -29,10 +29,23 @@ fi
 
 # Delete Kubernetes resources
 echo -e "\n${YELLOW}Deleting Kubernetes resources...${NC}"
-kubectl delete namespace gke-stats --ignore-not-found=true
-kubectl delete namespace cattle-system --ignore-not-found=true
-kubectl delete namespace cert-manager --ignore-not-found=true
-kubectl delete namespace ingress-nginx --ignore-not-found=true
+# Get cluster credentials first
+gcloud container clusters get-credentials gke-rancher-testdrive --zone=${ZONE} --project=${PROJECT_ID} 2>/dev/null || true
+
+# Update access with current IP to ensure we can delete resources
+CURRENT_IP=$(curl -s ifconfig.me)
+gcloud container clusters update gke-rancher-testdrive \
+  --enable-master-authorized-networks \
+  --master-authorized-networks 10.0.0.0/20,${CURRENT_IP}/32 \
+  --zone=${ZONE} \
+  --project=${PROJECT_ID} \
+  --quiet 2>/dev/null || true
+
+# Now delete the namespaces
+kubectl delete namespace gke-stats --ignore-not-found=true 2>/dev/null || true
+kubectl delete namespace cattle-system --ignore-not-found=true 2>/dev/null || true
+kubectl delete namespace cert-manager --ignore-not-found=true 2>/dev/null || true
+kubectl delete namespace ingress-nginx --ignore-not-found=true 2>/dev/null || true
 
 # Delete Artifact Registry images
 echo -e "\n${YELLOW}Deleting container images...${NC}"

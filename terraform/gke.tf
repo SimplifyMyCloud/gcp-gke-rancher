@@ -48,6 +48,8 @@ resource "google_container_cluster" "primary" {
       cidr_block   = "10.0.0.0/20"
       display_name = "VPC"
     }
+    # Note: Additional authorized IPs will be added by deploy script
+    # This ensures the deployer's current IP is always included
   }
 
   ip_allocation_policy {

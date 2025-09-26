@@ -47,6 +47,21 @@ terraform apply tfplan
 echo -e "\n${YELLOW}Getting GKE cluster credentials...${NC}"
 gcloud container clusters get-credentials gke-rancher-testdrive --zone=${ZONE} --project=${PROJECT_ID}
 
+# Update master authorized networks with current IP
+echo -e "\n${YELLOW}Updating cluster access with your current IP...${NC}"
+CURRENT_IP=$(curl -s ifconfig.me)
+echo -e "Your current IP: ${GREEN}${CURRENT_IP}${NC}"
+gcloud container clusters update gke-rancher-testdrive \
+  --enable-master-authorized-networks \
+  --master-authorized-networks 10.0.0.0/20,${CURRENT_IP}/32 \
+  --zone=${ZONE} \
+  --project=${PROJECT_ID} \
+  --quiet
+
+# Test cluster connectivity
+echo -e "\n${YELLOW}Testing cluster connectivity...${NC}"
+kubectl get nodes
+
 # Create Artifact Registry repository for container images
 echo -e "\n${YELLOW}Creating Artifact Registry repository...${NC}"
 gcloud artifacts repositories create gke-stats \
